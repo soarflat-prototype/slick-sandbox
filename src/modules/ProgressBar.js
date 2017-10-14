@@ -5,25 +5,34 @@ import events from 'events';
 ;
 
 export default class ProgressBar extends events {
-  constructor({ max, wait }) {
+  constructor({ maxIndex, waitCount, resetDuration }) {
     super();
     this.$el = $('.progress-bar');
     this.index = 0;
-    this.max = max;
-    this.waitCount = 0;
-    this.wait = wait;
+    this.maxIndex = maxIndex;
+    this.wait = waitCount;
+    this.waitCount = waitCount;
+    this.resetDuration = resetDuration;
 
     this.bindEvent();
   }
 
   bindEvent() {
     this.on('step', () => {
-      this.waitCount += 1;
-      if (this.waitCount === this.wait) {
-        this.waitCount = 0;
+      this.reduceWait();
+
+      if (this.canStep()) {
         this.step();
       }
     });
+  }
+
+  reduceWait() {
+    this.wait -= 1;
+  }
+
+  canStep() {
+    return (this.wait === 0);
   }
 
   start() {
@@ -31,14 +40,16 @@ export default class ProgressBar extends events {
   }
 
   step() {
-    const to = `${(this.index + 1) / (this.max) * 100}%`;
+    this.wait = this.waitCount;
+
+    const to = `${(this.index + 1) / (this.maxIndex + 1) * 100}%`;
 
     velocity(this.$el, {
       width: to,
     }, {
       duration: 3000,
       complete: () => {
-        if (this.index < this.max - 1) {
+        if (this.index < this.maxIndex) {
           this.index += 1;
           this.emit('pause');
         } else {
@@ -46,7 +57,7 @@ export default class ProgressBar extends events {
           velocity(this.$el, {
             width: '0%',
           }, {
-            duration: 300
+            duration: this.resetDuration,
           });
           this.emit('pause');
         }

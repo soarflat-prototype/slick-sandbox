@@ -4,6 +4,7 @@ import 'slick-carousel/slick/slick.scss'
 import ProgressBar from './modules/ProgressBar';
 
 const SLIDE_COUNT = 6;
+const SLIDE_DURATION = 500;
 let currentSlideCount = 1;
 
 const $sliderTop = $('.slider-top');
@@ -12,20 +13,22 @@ const $sliderBottom = $('.slider-bottom');
 $sliderTop.slick({
   slidesToShow: 1,
   slidesToScroll: 1,
+  speed: SLIDE_DURATION,
   arrows: false,
 });
 
 $sliderBottom.slick({
   slidesToShow: 3,
   slidesToScroll: 3,
+  speed: SLIDE_DURATION,
   arrows: false,
 });
 
 const progressBar = new ProgressBar({
-  max: SLIDE_COUNT,
-  wait: 2,
+  maxIndex: SLIDE_COUNT - 1,
+  waitCount: 2,
+  resetDuration: SLIDE_DURATION,
 });
-progressBar.start();
 
 progressBar.on('pause', () => {
   $sliderTop.slick('slickNext');
@@ -38,11 +41,9 @@ progressBar.on('pause', () => {
     $sliderBottom.trigger('afterChange');
   }
 
-  if (currentSlideCount < SLIDE_COUNT) {
-    currentSlideCount += 1;
-  } else {
-    currentSlideCount = 1;
-  }
+  currentSlideCount = (currentSlideCount < SLIDE_COUNT)
+    ? currentSlideCount + 1
+    : 1;
 });
 
 $sliderBottom.on('afterChange', () => {
@@ -52,3 +53,5 @@ $sliderBottom.on('afterChange', () => {
 $sliderTop.on('afterChange', () => {
   progressBar.emit('step');
 });
+
+progressBar.start();
