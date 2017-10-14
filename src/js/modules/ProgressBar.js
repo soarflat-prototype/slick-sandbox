@@ -2,8 +2,6 @@ import $ from 'jquery';
 import velocity from 'velocity-animate';
 import events from 'events';
 
-;
-
 export default class ProgressBar extends events {
   constructor({ maxIndex, remainingCountForNext, resetDuration }) {
     super();
