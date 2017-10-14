@@ -10,6 +10,9 @@ export default class ProgressBar extends events {
     this.maxLength = maxLength;
     this.duration = duration;
 
+    this.updateLength = this.updateLength.bind(this);
+    this.setLength = this.setLength.bind(this);
+
     this.bindEvent();
   }
 
@@ -18,38 +21,59 @@ export default class ProgressBar extends events {
   }
 
   next() {
-    this.go(this.length);
+    this.go(this.length)
+      .then(this.updateLength);
+  }
+
+  jump(length) {
+    this.go(length, 500)
+      .then(this.setLength);
   }
 
   go(length, duration = this.duration) {
-    const to = `${(length + 1) / (this.maxLength + 1) * 100}%`;
+    return new Promise((resolve, reject) => {
+      const to = `${(length + 1) / (this.maxLength + 1) * 100}%`;
 
-    velocity(this.$el, {
-      width: to,
-    }, {
-      duration,
-      complete: () => {
-        if (this.length < this.maxLength) {
-          this.length += 1;
-        } else {
-          this.length = 0;
-
-          velocity(this.$el, {
-            width: '0%',
-          }, {
-            duration: 500,
-          });
-        }
-
-        this.emit('changed', length);
-      },
-      queue:
-        false,
+      velocity(this.$el, {
+        width: to,
+      }, {
+        duration,
+        complete: () => {
+          resolve(length);
+          // if (this.length < this.maxLength) {
+          //   this.length += 1;
+          // } else {
+          //   this.length = 0;
+          //
+          //   velocity(this.$el, {
+          //     width: '0%',
+          //   }, {
+          //     duration: 500,
+          //   });
+          // }
+          //
+          // this.emit('changed', length);
+        },
+        queue:
+          false,
+      });
     });
+  }
+
+  updateLength() {
+    if (this.length < this.maxLength) {
+      this.length += 1;
+    } else {
+      this.length = 0;
+    }
+  }
+
+  setLength(length) {
+    this.length = length;
   }
 
   bindEvent() {
     this.on('next', () => this.next());
-    this.on('go', (length, duration) => this.go(length, duration));
+    // this.on('go', (length, duration) => this.go(length, duration));
   }
 }
