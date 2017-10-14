@@ -5,42 +5,24 @@ import events from 'events';
 ;
 
 export default class ProgressBar extends events {
-  constructor({ maxIndex, waitCount, resetDuration }) {
+  constructor({ maxIndex, remainingCountForNext, resetDuration }) {
     super();
     this.$el = $('.progress-bar');
     this.index = 0;
     this.maxIndex = maxIndex;
-    this.wait = waitCount;
-    this.waitCount = waitCount;
+    this.currentRemainingCountForNext = remainingCountForNext;
+    this.remainingCountForNext = remainingCountForNext;
     this.resetDuration = resetDuration;
 
     this.bindEvent();
   }
 
-  bindEvent() {
-    this.on('step', () => {
-      this.reduceWait();
-
-      if (this.canStep()) {
-        this.step();
-      }
-    });
-  }
-
-  reduceWait() {
-    this.wait -= 1;
-  }
-
-  canStep() {
-    return (this.wait === 0);
-  }
-
   start() {
-    this.step();
+    this.next();
   }
 
-  step() {
-    this.wait = this.waitCount;
+  next() {
+    this.currentRemainingCountForNext = this.remainingCountForNext;
 
     const to = `${(this.index + 1) / (this.maxIndex + 1) * 100}%`;
 
@@ -62,6 +44,21 @@ export default class ProgressBar extends events {
           this.emit('pause');
         }
       },
+    });
+  }
+
+  reduceRemainingCountForNext() {
+    this.currentRemainingCountForNext -= 1;
+  }
+
+  canNext() {
+    return (this.currentRemainingCountForNext === 0);
+  }
+
+  bindEvent() {
+    this.on('reduceRemainingCountForNext', () => {
+      this.reduceRemainingCountForNext();
+      if (this.canNext()) this.next();
     });
   }
 }

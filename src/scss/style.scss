@@ -1,0 +1,46 @@
+@import 'node_modules/reset-css/_reset';
+
+* {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  outline: none;
+}
+
+html {
+  font-family: "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", Helvetica, Arial, "モリサワ 新ゴ R", "Droid Sans", メイリオ, "sans-serif";
+}
+
+body {
+  background: #000;
+}
+
+img {
+  vertical-align: bottom;
+}
+
+.slider-image {
+  width: 100%;
+}
+
+.slider-top {
+  max-width: 1280px;
+  min-width: 1000px;
+  margin: 0 auto;
+}
+
+.slider-bottom {
+  width: 900px;
+  margin: 20px auto 0 auto;
+}
+
+.progress {
+  width: 1280px;
+  margin: 0 auto;
+
+  .progress-bar {
+    width: 0%;
+    height: 10px;
+    background: dodgerblue;
+  }
+}

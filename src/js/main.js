@@ -26,7 +26,7 @@ $sliderBottom.slick({
 
 const progressBar = new ProgressBar({
   maxIndex: SLIDE_COUNT - 1,
-  waitCount: 2,
+  remainingCountForNext: 2,
   resetDuration: SLIDE_DURATION,
 });
 
@@ -47,11 +47,11 @@ progressBar.on('pause', () => {
 });
 
 $sliderBottom.on('afterChange', () => {
-  progressBar.emit('step');
+  progressBar.emit('reduceRemainingCountForNext');
 });
 
 $sliderTop.on('afterChange', () => {
-  progressBar.emit('step');
+  progressBar.emit('reduceRemainingCountForNext');
 });
 
 progressBar.start();
