@@ -26,10 +26,10 @@ $sliderBottom.slick({
 
 const progressBar = new ProgressBar({
   maxLength: SLIDE_COUNT - 1,
-  duration: 5000,
+  duration: 2000,
 });
 
-progressBar.on('changed', () => {
+progressBar.on('goneNext', () => {
   $sliderTop.slick('slickNext');
 });
 
@@ -40,9 +40,9 @@ $sliderTop.on('afterChange', () => {
 $sliderBottom.slick('getSlick').$slides.on('click', (e) => {
   const $slide = $(e.currentTarget);
   const index = Number($slide.attr('data-slick-index'));
-  const duration = 500;
   $sliderTop.slick('slickPause');
-  progressBar.emit('go', index, duration);
+  $sliderTop.slick('slickGoTo', index);
+  progressBar.emit('jump', index);
 });
 
 progressBar.start();

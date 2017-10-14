@@ -22,40 +22,31 @@ export default class ProgressBar extends events {
 
   next() {
     this.go(this.length)
-      .then(this.updateLength);
+      .then(() => {
+        this.updateLength();
+        if (this.length === 0) this.go(-1, 500);
+        this.emit('goneNext');
+      });
   }
 
   jump(length) {
-    this.go(length, 500)
-      .then(this.setLength);
+    this.go(length - 1, 400)
+      .then(() => this.setLength(length));
   }
 
   go(length, duration = this.duration) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const to = `${(length + 1) / (this.maxLength + 1) * 100}%`;
 
+      velocity(this.$el, 'stop');
       velocity(this.$el, {
         width: to,
       }, {
         duration,
         complete: () => {
-          resolve(length);
-          // if (this.length < this.maxLength) {
-          //   this.length += 1;
-          // } else {
-          //   this.length = 0;
-          //
-          //   velocity(this.$el, {
-          //     width: '0%',
-          //   }, {
-          //     duration: 500,
-          //   });
-          // }
-          //
-          // this.emit('changed', length);
+          resolve();
         },
-        queue:
-          false,
+        queue: false,
       });
     });
   }
@@ -74,6 +65,6 @@ export default class ProgressBar extends events {
 
   bindEvent() {
     this.on('next', () => this.next());
-    // this.on('go', (length, duration) => this.go(length, duration));
+    this.on('jump', (length) => this.jump(length));
   }
 }
