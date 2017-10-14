@@ -18,15 +18,16 @@ export default class ProgressBar extends events {
   }
 
   next() {
-    const to = `${(this.length + 1) / (this.maxLength + 1) * 100}%`;
-    this.go(to);
+    this.go(this.length);
   }
 
-  go(to) {
+  go(length, duration = this.duration) {
+    const to = `${(length + 1) / (this.maxLength + 1) * 100}%`;
+
     velocity(this.$el, {
       width: to,
     }, {
-      duration: this.duration,
+      duration,
       complete: () => {
         if (this.length < this.maxLength) {
           this.length += 1;
@@ -40,12 +41,15 @@ export default class ProgressBar extends events {
           });
         }
 
-        this.emit('changed');
+        this.emit('changed', length);
       },
+      queue:
+        false,
     });
   }
 
   bindEvent() {
     this.on('next', () => this.next());
+    this.on('go', (length, duration) => this.go(length, duration));
   }
 }

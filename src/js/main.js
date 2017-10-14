@@ -5,16 +5,16 @@ import ProgressBar from './modules/ProgressBar';
 
 const SLIDE_COUNT = 6;
 const SLIDE_DURATION = 500;
-let currentSlideCount = 1;
 
 const $sliderTop = $('.slider-top');
 const $sliderBottom = $('.slider-bottom');
 
 $sliderTop.slick({
+  arrows: false,
+  draggable: false,
   slidesToShow: 1,
   slidesToScroll: 1,
   speed: SLIDE_DURATION,
-  arrows: false,
 });
 
 $sliderBottom.slick({
@@ -31,45 +31,18 @@ const progressBar = new ProgressBar({
 
 progressBar.on('changed', () => {
   $sliderTop.slick('slickNext');
-
-  // const slideToShow = $sliderBottom.slick('getSlick').options.slidesToShow;
-  //
-  // if (currentSlideCount % slideToShow === 0 && currentSlideCount !== 1) {
-  //   $sliderBottom.slick('slickNext');
-  // } else {
-  //   $sliderBottom.trigger('afterChange');
-  // }
-
-  currentSlideCount = (currentSlideCount < SLIDE_COUNT)
-    ? currentSlideCount + 1
-    : 1;
 });
 
-// $sliderBottom.on('afterChange', () => {
-//   progressBar.emit('next');
-// progressBar.emit('reduceRemainingCountForNext');
-// });
-//
 $sliderTop.on('afterChange', () => {
   progressBar.emit('next');
 });
 
+$sliderBottom.slick('getSlick').$slides.on('click', (e) => {
+  const $slide = $(e.currentTarget);
+  const index = Number($slide.attr('data-slick-index'));
+  const duration = 500;
+  $sliderTop.slick('slickPause');
+  progressBar.emit('go', index, duration);
+});
+
 progressBar.start();
-
-// this.currentRemainingCountForNext = remainingCountForNext;
-// this.remainingCountForNext = remainingCountForNext;
-
-
-//   this.on('reduceRemainingCountForNext', () => {
-//     this.reduceRemainingCountForNext();
-//     if (this.canNext()) this.next();
-//   });
-
-//
-// reduceRemainingCountForNext() {
-//   this.currentRemainingCountForNext -= 1;
-// }
-//
-// canNext() {
-//   return (this.currentRemainingCountForNext === 0);
-// }
