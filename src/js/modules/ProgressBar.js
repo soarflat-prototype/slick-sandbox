@@ -3,29 +3,36 @@ import velocity from 'velocity-animate';
 import events from 'events';
 
 export default class ProgressBar extends events {
-  constructor({ maxLength, duration }) {
+  constructor({ el, maxLength, duration, resetDuration, loop }) {
     super();
-    this.$el = $('.progress-bar');
+    this.$el = $(el);
     this.length = 0;
     this.maxLength = maxLength;
-    this.duration = duration;
-
-    this.updateLength = this.updateLength.bind(this);
-    this.setLength = this.setLength.bind(this);
-
-    this.bindEvent();
+    this.duration = (typeof duration !== 'undefined')
+      ? duration
+      : 5000;
+    this.resetDuration = (typeof resetDuration !== 'undefined')
+      ? resetDuration
+      : 1000;
+    this.loop = (typeof loop !== 'undefined')
+      ? loop
+      : false;
   }
 
   start() {
-    this.next();
+    this.step();
   }
 
-  next() {
+  step() {
     this.go(this.length)
       .then(() => {
         this.updateLength();
-        if (this.length === 0) this.go(-1, 500);
-        this.emit('goneNext');
+
+        if (this.loop && this.length === 0) {
+          this.reset();
+        } else {
+          this.emit('doneStep');
+        }
       });
   }
 
@@ -42,29 +49,27 @@ export default class ProgressBar extends events {
       velocity(this.$el, {
         width: to,
       }, {
-        duration,
         complete: () => {
           resolve();
         },
+        duration,
         queue: false,
       });
     });
   }
 
+  reset() {
+    this.go(-1, this.resetDuration);
+    this.emit('reset');
+  }
+
   updateLength() {
-    if (this.length < this.maxLength) {
-      this.length += 1;
-    } else {
-      this.length = 0;
-    }
+    this.length = (this.length < this.maxLength)
+      ? this.length + 1
+      : 0;
   }
 
   setLength(length) {
     this.length = length;
-  }
-
-  bindEvent() {
-    this.on('next', () => this.next());
-    this.on('jump', (length) => this.jump(length));
   }
 }
