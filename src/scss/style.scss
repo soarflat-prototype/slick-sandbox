@@ -32,6 +32,10 @@ img {
 .slider-bottom {
   width: 900px;
   margin: 20px auto 0 auto;
+
+  div {
+    cursor: pointer;
+  }
 }
 
 .progress {
